@@ -1,6 +1,6 @@
-# ch-storage-client
+# ch-pi-control
 
-[![Build Status](https://dev.azure.com/prakashsandeep/prakashsandeep/_apis/build/status/corehacker.ch-storage-client)](https://dev.azure.com/prakashsandeep/prakashsandeep/_build/latest?definitionId=3)
+[![Build Status](https://dev.azure.com/prakashsandeep/prakashsandeep/_apis/build/status/corehacker.ch-pi-control)](https://dev.azure.com/prakashsandeep/prakashsandeep/_build/latest?definitionId=3)
 
 * Capture on camera enabled Raspberry Pi.
 * Encode using ffmpeg to initividual TS segments (HLS).
