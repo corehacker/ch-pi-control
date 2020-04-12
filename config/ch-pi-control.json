@@ -1,0 +1,20 @@
+{
+    "name": "pi-control",
+    "console": true,
+    "daemon": false,
+    "run-for": 60000,
+    "run-forever": true,
+    "max-rss": 209715200,
+    "server": {
+        "port": 8888
+    },
+    "light": {
+	"pin": 4,
+	"on": {
+	    "route": "/garage/light/pi/iot/light/on"
+	},
+	"off": {
+	    "route": "/garage/light/pi/iot/light/off"
+	}
+    }
+}
