@@ -12,7 +12,7 @@ GLOG_GIT_TAG="v0.4.0"
 GPERFTOOLS_GIT_DOWNLOAD="https://github.com/gperftools/gperftools.git"
 GPERFTOOLS_GIT_TAG="gperftools-2.7"
 CH_CPP_UTILS_GIT_DOWNLOAD="https://github.com/corehacker/ch-cpp-utils.git"
-CH_STORAGE_CLIENT_GIT_DOWNLOAD="https://github.com/corehacker/ch-storage-client.git"
+CH_STORAGE_CLIENT_GIT_DOWNLOAD="https://github.com/corehacker/ch-pi-control.git"
 
 function cleanup {
   sudo rm -rf $TEMP_DIR ltmain.sh
@@ -141,37 +141,17 @@ function install_ch_cpp_utils {
   fi
 }
 
-function install_ch_storage_client {
-  if test -f /usr/local/bin/ch-storage-client; then
-    log "[ch-storage-client] Already installed @ /usr/local/bin/ch-storage-client."
-    ls -lh /usr/local/bin/ch-storage-client
+function install_ch_pi_control {
+  if test -f /usr/local/bin/ch-pi-control; then
+    log "[ch-pi-control] Already installed @ /usr/local/bin/ch-pi-control."
+    ls -lh /usr/local/bin/ch-pi-control
   else
-    log "[ch-storage-client] Cloning $CH_STORAGE_CLIENT_GIT_DOWNLOAD..." && \
+    log "[ch-pi-control] Cloning $CH_STORAGE_CLIENT_GIT_DOWNLOAD..." && \
     git clone $CH_STORAGE_CLIENT_GIT_DOWNLOAD &>> $LOG_FILE && \
-    cd ch-storage-client && \
-    log "[ch-storage-client] Running autogen.sh..." && \
-    ./autogen.sh &>> $LOG_FILE && configure_make_make_install "ch-storage-client" && \
+    cd ch-pi-control && \
+    log "[ch-pi-control] Running autogen.sh..." && \
+    ./autogen.sh &>> $LOG_FILE && configure_make_make_install "ch-pi-control" && \
     cd ..
-  fi
-}
-
-function configure_ch_storage_client {
-  sudo mkdir -p /etc/ch-storage-client
-  if test -f /etc/ch-storage-client/ch-storage-client.json; then
-    log "[configure ch-storage-client] ch-storage-client.json found."
-    ls -l /etc/ch-storage-client/ch-storage-client.json
-  else
-    log "[configure ch-storage-client] ch-storage-client.json not found. Copying..."
-  fi
-}
-
-function install_ffmpeg {
-  if test -f /usr/local/bin/ffmpeg; then
-    log "[ffmpeg] Already installed @ /usr/local/bin/ffmpeg"
-    ls -lh /usr/local/bin/ffmpeg
-  else
-    log "[ffmpeg] Installing custom ffmpeg..."
-    sudo cp -v ../tools/pi/ffmpeg/* /usr/local/bin
   fi
 }
 
@@ -185,31 +165,14 @@ function install_supervisor {
   fi
 }
 
-function configure_camera_scripts {
-  if test -f /usr/local/bin/ch-camera.sh; then
-    log "[scripts] ch-camera.sh found."
-    ls -l /usr/local/bin/ch-camera.sh
-  else
-    log "[scripts] ch-camera.sh not found. Copying..."
-    sudo cp -v ../tools/pi/scripts/ch-camera.sh /usr/local/bin
-  fi
-}
-
 function configure_supervisor {
-  if test -f /etc/supervisor/conf.d/ch-camera.conf; then
-    log "[supervisor] ch-camera.conf found."
-    ls -l /etc/supervisor/conf.d/ch-camera.conf
+  if test -f /etc/supervisor/conf.d/ch-pi-control.conf; then
+    log "[supervisor] ch-pi-control.conf found."
+    ls -l /etc/supervisor/conf.d/ch-pi-control.conf
   else
-    log "[supervisor] ch-camera.conf not found. Copying..."
-    sudo cp -v ../tools/pi/scripts/supervisor/ch-camera.conf /etc/supervisor/conf.d
-  fi
-
-  if test -f /etc/supervisor/conf.d/ch-storage-client.conf; then
-    log "[supervisor] ch-storage-client.conf found."
-    ls -l /etc/supervisor/conf.d/ch-storage-client.conf
-  else
-    log "[supervisor] ch-storage-client.conf not found. Copying..."
-    sudo cp -v ../tools/pi/scripts/supervisor/ch-storage-client.conf /etc/supervisor/conf.d
+    log "[supervisor] ch-pi-control.conf not found. Copying..."
+    sudo cp -v ../config/supervisor/ch-pi-control.conf /etc/supervisor/conf.d
+    sudo supervisorctl reread && sudo supervisorctl update
   fi
 }
 
@@ -219,11 +182,8 @@ cleanup && init && tools_install
 # install_glog
 # install_gperftools
 # install_ch_cpp_utils
-# install_ch_storage_client
-# configure_ch_storage_client
-# install_ffmpeg
+# install_ch_pi_control
 # install_supervisor
-# configure_camera_scripts
 # configure_supervisor
 
 install_libevent && \
@@ -231,12 +191,9 @@ install_libevent && \
 	install_gperftools && \
 	install_supervisor && \
 	install_ch_cpp_utils
-	#install_ch_storage_client && \
-	#configure_ch_storage_client && \
-	#install_ffmpeg && \
-	#configure_camera_scripts && \
-	#configure_supervisor && \
-	#cleanup && \
-	#end_installation
-        #
-        #
+	install_ch_pi_control && \
+	install_supervisor && \
+	configure_supervisor && \
+	cleanup && \
+	end_installation
+
