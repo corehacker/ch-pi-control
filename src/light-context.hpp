@@ -40,10 +40,19 @@
  *
  ******************************************************************************/
 
+#include <mutex>
+
+#include <ch-cpp-utils/timer.hpp>
+
 #include "config.hpp"
 
 #ifndef SRC_LIGHT_CONTEXT_HPP_
 #define SRC_LIGHT_CONTEXT_HPP_
+
+using std::mutex;
+
+using ChCppUtils::Timer;
+using ChCppUtils::TimerEvent;
 
 namespace PC {
 
@@ -51,7 +60,17 @@ class LightContext {
 private:
 	Config *mConfig;
 
+	Timer *mTimer;
+
+	TimerEvent *mTimerEvent;
+
+	mutex mTimerMutex;
+
 	uint32_t mPin;
+
+	static void _onTimerEvent(TimerEvent *event, void *this_);
+
+	void onTimerEvent(TimerEvent *event);
 
 public:
 	LightContext(Config *config);

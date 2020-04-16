@@ -51,16 +51,19 @@
 
 #include "light-context.hpp"
 #include "pi-control.hpp"
+#include "motion-detector.hpp"
 
 using ChCppUtils::directoryListing;
 
 using PC::PiControl;
 using PC::Config;
 using PC::LightContext;
+using PC::MotionDetector;
 
 static Config *config = nullptr;
 static PiControl *piControl = nullptr;
 static LightContext *lightContext = nullptr;
+static MotionDetector *motionDetector = nullptr;
 
 static void initEnv();
 static void deinitEnv();
@@ -70,6 +73,9 @@ static void initClient() {
 	lightContext = new LightContext(config);
 	piControl = new PiControl(config, lightContext);
 	piControl->start();
+
+	motionDetector = new MotionDetector(config, lightContext);
+	motionDetector->start();
 }
 
 static void eventFatalCallback(int err) {

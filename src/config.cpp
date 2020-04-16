@@ -86,6 +86,15 @@ bool Config::populateConfigValues() {
 	lightOffRoute = mJson["light"]["off"]["route"];
 	LOG(INFO) << "light.off.route : " << lightOffRoute;
 
+	lightTimeoutSeconds = mJson["light"]["timeout-s"];
+	LOG(INFO) << "light.timeout-s : " << lightTimeoutSeconds;
+
+	motionDetectorPin = mJson["motion-detector"]["pin"];
+	LOG(INFO) << "motion-detector.pin : " << motionDetectorPin;
+
+	motionDetectorWindowSeconds = mJson["motion-detector"]["window-s"];
+	LOG(INFO) << "motion-detector.window-s : " << motionDetectorWindowSeconds;
+
 	LOG(INFO) << "----------------------->Config";
 	return true;
 }
@@ -108,6 +117,18 @@ string Config::getLightOnRoute() {
 
 string Config::getLightOffRoute() {
 	return lightOffRoute;
+}
+
+uint64_t Config::getLightTimeoutSeconds() {
+	return lightTimeoutSeconds;
+}
+
+uint32_t Config::getMotionDetectorPin() {
+	return motionDetectorPin;
+}
+
+uint64_t Config::getMotionDetectorWindowSeconds() {
+	return motionDetectorWindowSeconds;
 }
 
 } // End namespace PC.

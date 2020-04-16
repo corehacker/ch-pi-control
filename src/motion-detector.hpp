@@ -30,7 +30,7 @@
 /*******************************************************************************
  * Copyright (c) 2020, Sandeep Prakash <123sandy@gmail.com>
  *
- * \file   light-context.cpp
+ * \file   motion-detector.hpp
  *
  * \author Sandeep Prakash
  *
@@ -40,88 +40,63 @@
  *
  ******************************************************************************/
 
-#include <glog/logging.h>
+#include <ch-cpp-utils/semaphore.hpp>
+#include <ch-cpp-utils/thread-pool.hpp>
+#include <ch-cpp-utils/utils.hpp>
 
+#include "config.hpp"
 #include "light-context.hpp"
 
-#include <wiringPi.h>
+using ChCppUtils::ThreadPool;
+using ChCppUtils::ThreadJobBase;
+using ChCppUtils::ThreadJob;
+
+#ifndef SRC_MOTION_DETECTOR_HPP_
+#define SRC_MOTION_DETECTOR_HPP_
 
 namespace PC {
 
-LightContext::LightContext(Config *config) : mTimerMutex() {
-	mConfig = config;
+class MotionDetector {
 
-	mTimerEvent = nullptr;
-	mTimer = new Timer();
-	
-	wiringPiSetup();
+private:
 
-	mPin = mConfig->getLightPin();	
+	Config *mConfig;
 
-	pinMode(mPin, OUTPUT);
-}
+	LightContext *mLightContext;
 
-LightContext::~LightContext() {
-}
+	ThreadPool *mPool;
 
-void LightContext::_onTimerEvent(TimerEvent *event, void *this_) {
-	LightContext *lightContext = (LightContext *) this_;
-	lightContext->onTimerEvent(event);
-}
+	uint32_t mPin;
 
-void LightContext::onTimerEvent(TimerEvent *event) {
-	LOG(INFO) << "Timer fired. Switching off.";
-	off();
+	uint64_t mWindowNs;
 
-	LOG(INFO) << "Timer fired. Destroying timer event.";
-	std::lock_guard <mutex> lock (mTimerMutex);
-	mTimer->destroy(mTimerEvent);
-	mTimerEvent = nullptr;
-}
+	uint64_t mLastMotionDetectionNs;
+
+	bool hasMotion();
+
+	bool hasWindowExpired();
+
+	void takeAction();
+
+	static void *_routine(void *arg, struct event_base *base);
+
+	void *routine();
 
 
-void LightContext::on() {
-	digitalWrite(mPin, HIGH);
+public:
 
-	struct timeval tv = {0};
-	tv.tv_sec = mConfig->getLightTimeoutSeconds();
+	MotionDetector(Config *config,
+	               LightContext *lightContext);
 
-	std::lock_guard <mutex> lock (mTimerMutex);
-	if(mTimerEvent == nullptr) {
-		mTimerEvent = mTimer->create(&tv, LightContext::_onTimerEvent, this);
-		LOG(INFO) << "Timer created.";
-	} else {
-		LOG(INFO) << "Timer already exists. Will not recreate.";
-	}
-}
+	~MotionDetector();
 
-void LightContext::off() {
-	digitalWrite(mPin, LOW);
-}
+	void start();
+
+	void stop();
+
+};
 
 }
 
-// using PC::Config;
-// using PC::LightContext;
+#endif
 
-// static Config *config = nullptr;
-// static LightContext *lightContext = nullptr;
-
-// int main() {
-
-// 	config = new Config();
-// 	config->init();
-
-// 	lightContext = new LightContext(config);
-// 	lightContext->on();
-// 	lightContext->on();
-
-// 	THREAD_SLEEP_5S;
-// 	THREAD_SLEEP_1000MS;
-
-// 	lightContext->on();
-
-// 	THREAD_SLEEP_FOREVER;
-
-// 	return 0;
-// }

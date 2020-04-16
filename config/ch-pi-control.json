@@ -9,12 +9,18 @@
         "port": 8888
     },
     "light": {
-	"pin": 4,
-	"on": {
-	    "route": "/garage/light/pi/iot/light/on"
-	},
-	"off": {
-	    "route": "/garage/light/pi/iot/light/off"
-	}
+        "pin": 4,
+        "on": {
+            "route": "/garage/light/pi/iot/light/on"
+        },
+        "off": {
+            "route": "/garage/light/pi/iot/light/off"
+        },
+        "timeout-s": 3
+    },
+    "motion-detector": {
+        "pin": 5,
+        "action": "on",
+        "window-s": 10
     }
 }

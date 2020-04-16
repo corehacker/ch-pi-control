@@ -30,7 +30,7 @@
 /*******************************************************************************
  * Copyright (c) 2020, Sandeep Prakash <123sandy@gmail.com>
  *
- * \file   light-context.cpp
+ * \file   motion-detector.hpp
  *
  * \author Sandeep Prakash
  *
@@ -42,86 +42,89 @@
 
 #include <glog/logging.h>
 
-#include "light-context.hpp"
+#include "motion-detector.hpp"
 
 #include <wiringPi.h>
 
+using ChCppUtils::getEpochNano;
+
 namespace PC {
 
-LightContext::LightContext(Config *config) : mTimerMutex() {
+MotionDetector::MotionDetector(Config *config,
+	                           LightContext *lightContext) {
 	mConfig = config;
 
-	mTimerEvent = nullptr;
-	mTimer = new Timer();
-	
+	mLightContext = lightContext;
+
+	mWindowNs = mConfig->getMotionDetectorWindowSeconds() * 1000 * 1000 * 1000;
+
+	mLastMotionDetectionNs = 0;
+
 	wiringPiSetup();
 
 	mPin = mConfig->getLightPin();	
 
-	pinMode(mPin, OUTPUT);
+	pinMode(mPin, INPUT);
+
+	mPool = new ThreadPool(1, false);
 }
 
-LightContext::~LightContext() {
+MotionDetector::~MotionDetector() {
+
 }
 
-void LightContext::_onTimerEvent(TimerEvent *event, void *this_) {
-	LightContext *lightContext = (LightContext *) this_;
-	lightContext->onTimerEvent(event);
-}
-
-void LightContext::onTimerEvent(TimerEvent *event) {
-	LOG(INFO) << "Timer fired. Switching off.";
-	off();
-
-	LOG(INFO) << "Timer fired. Destroying timer event.";
-	std::lock_guard <mutex> lock (mTimerMutex);
-	mTimer->destroy(mTimerEvent);
-	mTimerEvent = nullptr;
-}
-
-
-void LightContext::on() {
-	digitalWrite(mPin, HIGH);
-
-	struct timeval tv = {0};
-	tv.tv_sec = mConfig->getLightTimeoutSeconds();
-
-	std::lock_guard <mutex> lock (mTimerMutex);
-	if(mTimerEvent == nullptr) {
-		mTimerEvent = mTimer->create(&tv, LightContext::_onTimerEvent, this);
-		LOG(INFO) << "Timer created.";
+bool MotionDetector::hasMotion() {
+	if (digitalRead(mPin) == LOW) {
+		return false;
 	} else {
-		LOG(INFO) << "Timer already exists. Will not recreate.";
+		return true;
 	}
 }
 
-void LightContext::off() {
-	digitalWrite(mPin, LOW);
+bool MotionDetector::hasWindowExpired() {
+	uint64_t currentTimeNs = getEpochNano();
+	uint64_t elapsedNs = currentTimeNs - mLastMotionDetectionNs;
+	if(elapsedNs > mWindowNs) {
+		LOG(INFO) << "Window expired.";
+		return true;
+	} else {
+		LOG(INFO) << "Window not expired.";
+		return false;
+	}
+}
+
+void MotionDetector::takeAction() {
+	mLightContext->on();
+}
+
+void *MotionDetector::_routine(void *arg, struct event_base *base) {
+	MotionDetector *md = (MotionDetector *) arg;
+	return md->routine();
+}
+	
+void *MotionDetector::routine() {
+	THREAD_SLEEP_1000MS;
+
+	bool motion = hasMotion();
+	bool hasExpired = hasWindowExpired();
+	if(motion && hasExpired) {
+		takeAction();
+		mLastMotionDetectionNs = getEpochNano();
+	}
+
+	start();
+
+	return nullptr;
+}
+
+void MotionDetector::start() {
+	ThreadJob *job = new ThreadJob(MotionDetector::_routine, this);
+	LOG(INFO) << "New motion detector job created";
+	mPool->addJob(job);
+}
+
+void MotionDetector::stop() {
+	
 }
 
 }
-
-// using PC::Config;
-// using PC::LightContext;
-
-// static Config *config = nullptr;
-// static LightContext *lightContext = nullptr;
-
-// int main() {
-
-// 	config = new Config();
-// 	config->init();
-
-// 	lightContext = new LightContext(config);
-// 	lightContext->on();
-// 	lightContext->on();
-
-// 	THREAD_SLEEP_5S;
-// 	THREAD_SLEEP_1000MS;
-
-// 	lightContext->on();
-
-// 	THREAD_SLEEP_FOREVER;
-
-// 	return 0;
-// }

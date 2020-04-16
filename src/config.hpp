@@ -76,6 +76,10 @@ private:
 	uint32_t lightPin;
 	string lightOnRoute;
 	string lightOffRoute;
+	uint64_t lightTimeoutSeconds;
+
+	uint32_t motionDetectorPin;
+	uint64_t motionDetectorWindowSeconds;
 
 	bool populateConfigValues();
 public:
@@ -91,6 +95,10 @@ public:
 	uint32_t getLightPin();
 	string getLightOnRoute();
 	string getLightOffRoute();
+	uint64_t getLightTimeoutSeconds();
+
+	uint32_t getMotionDetectorPin();
+	uint64_t getMotionDetectorWindowSeconds();
 };
 
 } // End namespace PC.

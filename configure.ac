@@ -14,7 +14,7 @@ AC_LANG([C])
 # AC_CHECK_HEADER_STDBOOL
 
 CXXFLAGS="$CXXFLAGS -Wall -std=c++0x"
-LIBS="-lpthread -lrt -lm -latomic $LIBS"
+LIBS="-lpthread -lrt -lm -latomic -lcrypt $LIBS"
 
 trylibeventdir=""
 AC_ARG_WITH(libevent,
