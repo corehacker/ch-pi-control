@@ -59,6 +59,9 @@ LightContext::LightContext(Config *config) : mTimerMutex() {
 	mPin = mConfig->getLightPin();	
 
 	pinMode(mPin, OUTPUT);
+
+	LOG(INFO) << "Light pin: " << mPin << ", Mode: OUTPUT";
+
 }
 
 LightContext::~LightContext() {

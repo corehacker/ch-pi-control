@@ -66,6 +66,8 @@ MotionDetector::MotionDetector(Config *config,
 
 	pinMode(mPin, INPUT);
 
+	LOG(INFO) << "Motion detector pin: " << mPin << ", Mode: INPUT";
+
 	mPool = new ThreadPool(1, false);
 }
 
