@@ -62,7 +62,7 @@ MotionDetector::MotionDetector(Config *config,
 
 	wiringPiSetup();
 
-	mPin = mConfig->getLightPin();	
+	mPin = mConfig->getMotionDetectorPin();	
 
 	pinMode(mPin, INPUT);
 
