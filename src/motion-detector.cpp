@@ -75,8 +75,10 @@ MotionDetector::~MotionDetector() {
 
 bool MotionDetector::hasMotion() {
 	if (digitalRead(mPin) == LOW) {
+		LOG(INFO) << "No motion detected.";
 		return false;
 	} else {
+		LOG(INFO) << "Motion detected.";
 		return true;
 	}
 }
