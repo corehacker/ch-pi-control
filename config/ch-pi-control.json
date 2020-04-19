@@ -16,11 +16,11 @@
         "off": {
             "route": "/garage/light/pi/iot/light/off"
         },
-        "timeout-s": 3
+        "timeout-s": 10
     },
     "motion-detector": {
         "pin": 5,
         "action": "on",
-        "window-s": 10
+        "window-s": 0
     }
 }

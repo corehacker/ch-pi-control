@@ -77,10 +77,10 @@ MotionDetector::~MotionDetector() {
 
 bool MotionDetector::hasMotion() {
 	if (digitalRead(mPin) == LOW) {
-		LOG(INFO) << "No motion detected.";
+		// LOG(INFO) << "No motion detected.";
 		return false;
 	} else {
-		LOG(INFO) << "Motion detected.";
+		// LOG(INFO) << "Motion detected.";
 		return true;
 	}
 }
@@ -89,10 +89,10 @@ bool MotionDetector::hasWindowExpired() {
 	uint64_t currentTimeNs = getEpochNano();
 	uint64_t elapsedNs = currentTimeNs - mLastMotionDetectionNs;
 	if(elapsedNs > mWindowNs) {
-		LOG(INFO) << "Window expired.";
+		// LOG(INFO) << "Window expired.";
 		return true;
 	} else {
-		LOG(INFO) << "Window not expired.";
+		// LOG(INFO) << "Window not expired.";
 		return false;
 	}
 }
@@ -111,6 +111,8 @@ void *MotionDetector::routine() {
 
 	bool motion = hasMotion();
 	bool hasExpired = hasWindowExpired();
+	LOG(INFO) << "Motion: " << (motion ? "yes" : "no") <<
+		", Window Expired: " << (hasExpired ? "yes" : "no");
 	if(motion && hasExpired) {
 		takeAction();
 		mLastMotionDetectionNs = getEpochNano();
@@ -123,7 +125,6 @@ void *MotionDetector::routine() {
 
 void MotionDetector::start() {
 	ThreadJob *job = new ThreadJob(MotionDetector::_routine, this);
-	LOG(INFO) << "New motion detector job created";
 	mPool->addJob(job);
 }
 

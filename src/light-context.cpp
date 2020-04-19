@@ -75,15 +75,11 @@ void LightContext::_onTimerEvent(TimerEvent *event, void *this_) {
 void LightContext::onTimerEvent(TimerEvent *event) {
 	LOG(INFO) << "Timer fired. Switching off.";
 	off();
-
-	LOG(INFO) << "Timer fired. Destroying timer event.";
-	std::lock_guard <mutex> lock (mTimerMutex);
-	mTimer->destroy(mTimerEvent);
-	mTimerEvent = nullptr;
 }
 
 
 void LightContext::on() {
+	LOG(INFO) << "Switching on.";
 	digitalWrite(mPin, HIGH);
 
 	struct timeval tv = {0};
@@ -94,7 +90,8 @@ void LightContext::on() {
 		mTimerEvent = mTimer->create(&tv, LightContext::_onTimerEvent, this);
 		LOG(INFO) << "Timer created.";
 	} else {
-		LOG(INFO) << "Timer already exists. Will not recreate.";
+		LOG(INFO) << "Timer already exists. Will restart.";
+		mTimer->restart(mTimerEvent);
 	}
 }
 
