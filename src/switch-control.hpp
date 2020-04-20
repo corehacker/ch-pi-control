@@ -30,82 +30,67 @@
 /*******************************************************************************
  * Copyright (c) 2020, Sandeep Prakash <123sandy@gmail.com>
  *
- * \file   config.hpp
+ * \file   switch-control.hpp
  *
  * \author Sandeep Prakash
  *
- * \date   Apr 11, 2020
+ * \date   April 19, 2020
  *
  * \brief
  *
  ******************************************************************************/
 
-#include <vector>
-#include <string>
+#include <ch-cpp-utils/semaphore.hpp>
+#include <ch-cpp-utils/thread-pool.hpp>
 #include <ch-cpp-utils/utils.hpp>
-#include <ch-cpp-utils/config.hpp>
 
-#ifndef SRC_CONFIG_HPP_
-#define SRC_CONFIG_HPP_
+#include "config.hpp"
+#include "light-context.hpp"
 
-using std::vector;
-using std::string;
+using ChCppUtils::ThreadPool;
+using ChCppUtils::ThreadJobBase;
+using ChCppUtils::ThreadJob;
+
+#ifndef SRC_SWITCH_CONTROL_HPP_
+#define SRC_SWITCH_CONTROL_HPP_
 
 namespace PC {
 
-class WatchDir {
-public:
-	string dir;
-	bool upload;
+class SwitchControl {
 
-	WatchDir();
-
-	WatchDir(string dir, bool upload);
-};
-
-class Config : public ChCppUtils::Config {
 private:
-	vector<WatchDir> watchDirs;
-	vector<string> filters;
 
-	string hostname;
-	uint16_t port;
-	string prefix;
-	string name;
+	Config *mConfig;
 
-	uint32_t lightPin;
-	string lightOnRoute;
-	string lightOffRoute;
-	uint64_t lightTimeoutSeconds;
+	LightContext *mLightContext;
 
-	uint32_t motionDetectorPin;
-	uint64_t motionDetectorWindowSeconds;
+	ThreadPool *mPool;
 
-	uint32_t switchControlPin;
+	uint32_t mPin;
 
-	bool populateConfigValues();
+	bool hasActivity();
+
+	void takeAction();
+
+	static void *_routine(void *arg, struct event_base *base);
+
+	void *routine();
+
+
 public:
-	Config();
-	~Config();
-	void init();
 
-	string &getHostname();
-	uint16_t getPort();
-	string &getPrefix();
-	string &getName();
+	SwitchControl(Config *config,
+	              LightContext *lightContext);
 
-	uint32_t getLightPin();
-	string getLightOnRoute();
-	string getLightOffRoute();
-	uint64_t getLightTimeoutSeconds();
+	~SwitchControl();
 
-	uint32_t getMotionDetectorPin();
-	uint64_t getMotionDetectorWindowSeconds();
+	void start();
 
-	uint32_t getSwitchControlPin();
+	void stop();
+
 };
 
-} // End namespace PC.
+}
 
+#endif
 
-#endif /* SRC_CONFIG_HPP_ */

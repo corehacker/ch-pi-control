@@ -4,6 +4,7 @@ ch_pi_control_SOURCES =  \
 			 main.cpp \
 			 light-context.cpp \
 			 motion-detector.cpp \
+			 switch-control.cpp \
 			 pi-control.cpp \
 			 config.cpp
 						

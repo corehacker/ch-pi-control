@@ -95,6 +95,9 @@ bool Config::populateConfigValues() {
 	motionDetectorWindowSeconds = mJson["motion-detector"]["window-s"];
 	LOG(INFO) << "motion-detector.window-s : " << motionDetectorWindowSeconds;
 
+	switchControlPin = mJson["switch-control"]["pin"];
+	LOG(INFO) << "switch-control.pin : " << switchControlPin;
+
 	LOG(INFO) << "----------------------->Config";
 	return true;
 }
@@ -129,6 +132,10 @@ uint32_t Config::getMotionDetectorPin() {
 
 uint64_t Config::getMotionDetectorWindowSeconds() {
 	return motionDetectorWindowSeconds;
+}
+
+uint32_t Config::getSwitchControlPin() {
+	return switchControlPin;
 }
 
 } // End namespace PC.

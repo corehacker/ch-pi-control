@@ -30,82 +30,87 @@
 /*******************************************************************************
  * Copyright (c) 2020, Sandeep Prakash <123sandy@gmail.com>
  *
- * \file   config.hpp
+ * \file   switch-control.hpp
  *
  * \author Sandeep Prakash
  *
- * \date   Apr 11, 2020
+ * \date   April 19, 2020
  *
  * \brief
  *
  ******************************************************************************/
 
-#include <vector>
-#include <string>
-#include <ch-cpp-utils/utils.hpp>
-#include <ch-cpp-utils/config.hpp>
+#include <glog/logging.h>
 
-#ifndef SRC_CONFIG_HPP_
-#define SRC_CONFIG_HPP_
+#include "switch-control.hpp"
 
-using std::vector;
-using std::string;
+#include <wiringPi.h>
+
+using ChCppUtils::getEpochNano;
 
 namespace PC {
 
-class WatchDir {
-public:
-	string dir;
-	bool upload;
+SwitchControl::SwitchControl(Config *config,
+	                           LightContext *lightContext) {
+	mConfig = config;
 
-	WatchDir();
+	mLightContext = lightContext;
 
-	WatchDir(string dir, bool upload);
-};
+	wiringPiSetup();
 
-class Config : public ChCppUtils::Config {
-private:
-	vector<WatchDir> watchDirs;
-	vector<string> filters;
+	mPin = mConfig->getSwitchControlPin();	
 
-	string hostname;
-	uint16_t port;
-	string prefix;
-	string name;
+	pinMode(mPin, INPUT);
 
-	uint32_t lightPin;
-	string lightOnRoute;
-	string lightOffRoute;
-	uint64_t lightTimeoutSeconds;
+	LOG(INFO) << "Switch control pin: " << mPin << ", Mode: INPUT";
 
-	uint32_t motionDetectorPin;
-	uint64_t motionDetectorWindowSeconds;
+	mPool = new ThreadPool(1, false);
+}
 
-	uint32_t switchControlPin;
+SwitchControl::~SwitchControl() {
 
-	bool populateConfigValues();
-public:
-	Config();
-	~Config();
-	void init();
+}
 
-	string &getHostname();
-	uint16_t getPort();
-	string &getPrefix();
-	string &getName();
+bool SwitchControl::hasActivity() {
+	if (digitalRead(mPin) == LOW) {
+		// LOG(INFO) << "No motion detected.";
+		return false;
+	} else {
+		// LOG(INFO) << "Motion detected.";
+		return true;
+	}
+}
 
-	uint32_t getLightPin();
-	string getLightOnRoute();
-	string getLightOffRoute();
-	uint64_t getLightTimeoutSeconds();
+void SwitchControl::takeAction() {
+	mLightContext->on();
+}
 
-	uint32_t getMotionDetectorPin();
-	uint64_t getMotionDetectorWindowSeconds();
+void *SwitchControl::_routine(void *arg, struct event_base *base) {
+	SwitchControl *md = (SwitchControl *) arg;
+	return md->routine();
+}
+	
+void *SwitchControl::routine() {
+	THREAD_SLEEP_1000MS;
 
-	uint32_t getSwitchControlPin();
-};
+	bool activity = hasActivity();
+	LOG(INFO) << "Activity: " << (activity ? "yes" : "no");
+	if(activity) {
+		takeAction();
+	}
 
-} // End namespace PC.
+	start();
 
+	return nullptr;
+}
 
-#endif /* SRC_CONFIG_HPP_ */
+void SwitchControl::start() {
+	ThreadJob *job = new ThreadJob(SwitchControl::_routine, this);
+	mPool->addJob(job);
+}
+
+void SwitchControl::stop() {
+	
+}
+
+}

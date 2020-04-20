@@ -22,5 +22,8 @@
         "pin": 5,
         "action": "on",
         "window-s": 0
+    },
+    "switch-control": {
+        "pin": 6
     }
 }

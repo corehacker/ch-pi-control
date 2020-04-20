@@ -52,6 +52,7 @@
 #include "light-context.hpp"
 #include "pi-control.hpp"
 #include "motion-detector.hpp"
+#include "switch-control.hpp"
 
 using ChCppUtils::directoryListing;
 
@@ -59,11 +60,13 @@ using PC::PiControl;
 using PC::Config;
 using PC::LightContext;
 using PC::MotionDetector;
+using PC::SwitchControl;
 
 static Config *config = nullptr;
 static PiControl *piControl = nullptr;
 static LightContext *lightContext = nullptr;
 static MotionDetector *motionDetector = nullptr;
+static SwitchControl *switchControl = nullptr;
 
 static void initEnv();
 static void deinitEnv();
@@ -76,6 +79,9 @@ static void initClient() {
 
 	motionDetector = new MotionDetector(config, lightContext);
 	motionDetector->start();
+
+	switchControl = new SwitchControl(config, lightContext);
+	switchControl->start();
 }
 
 static void eventFatalCallback(int err) {
@@ -101,10 +107,18 @@ static void initEnv() {
 }
 
 static void deinitEnv() {
+	delete switchControl;
+	LOG(INFO) << "Deleted switchControl...";
+
+	delete motionDetector;
+	LOG(INFO) << "Deleted motionDetector...";
+
 	delete piControl;
 	LOG(INFO) << "Deleted piControl...";
+
 	delete lightContext;
 	LOG(INFO) << "Deleted lightContext...";
+
 	delete config;
 	LOG(INFO) << "Deleted config...";
 }
