@@ -94,7 +94,7 @@ void *SwitchControl::routine() {
 	THREAD_SLEEP_1000MS;
 
 	bool activity = hasActivity();
-	LOG(INFO) << "Activity: " << (activity ? "yes" : "no");
+	LOG(INFO) << "Activity: " << (activity ? "pressed" : "released");
 	if(activity) {
 		takeAction();
 	}
