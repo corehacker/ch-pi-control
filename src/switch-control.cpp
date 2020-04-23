@@ -106,13 +106,13 @@ void *SwitchControl::routine() {
 
 	bool activity = hasActivity();
 
-	mSwitchState = ((mSwitchState == ON) ? OFF : ON);
+	if(activity) {
+		mSwitchState = ((mSwitchState == ON) ? OFF : ON);
+	}
 
 	LOG(INFO) << "Activity: " << (activity ? "pressed" : "released") <<
 		"State: " << ((mSwitchState == ON) ? "OFF" : "ON");
-	if(activity) {
-		takeAction();
-	}
+	takeAction();
 
 	start();
 
