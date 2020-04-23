@@ -56,6 +56,11 @@ using ChCppUtils::ThreadJob;
 
 namespace PC {
 
+enum SwitchState {
+	ON,
+	OFF
+};
+
 class SwitchControl {
 
 private:
@@ -67,6 +72,8 @@ private:
 	ThreadPool *mPool;
 
 	uint32_t mPin;
+
+	SwitchState mSwitchState;
 
 	bool hasActivity();
 

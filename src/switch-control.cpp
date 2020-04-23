@@ -58,7 +58,9 @@ SwitchControl::SwitchControl(Config *config,
 
 	wiringPiSetup();
 
-	mPin = mConfig->getSwitchControlPin();	
+	mPin = mConfig->getSwitchControlPin();
+
+	mSwitchState = OFF;
 
 	pinMode(mPin, INPUT);
 
@@ -82,7 +84,14 @@ bool SwitchControl::hasActivity() {
 }
 
 void SwitchControl::takeAction() {
-	mLightContext->on();
+	switch(mSwitchState) {
+		case ON:
+			mLightContext->on();
+			break;
+		case OFF:
+			mLightContext->off();
+			break;
+	}
 }
 
 void *SwitchControl::_routine(void *arg, struct event_base *base) {
@@ -94,7 +103,11 @@ void *SwitchControl::routine() {
 	THREAD_SLEEP_1000MS;
 
 	bool activity = hasActivity();
-	LOG(INFO) << "Activity: " << (activity ? "pressed" : "released");
+
+	mSwitchState = ((mSwitchState == ON) ? OFF : ON);
+
+	LOG(INFO) << "Activity: " << (activity ? "pressed" : "released") <<
+		"State: " << ((mSwitchState == ON) ? "OFF" : "ON");
 	if(activity) {
 		takeAction();
 	}
