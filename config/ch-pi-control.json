@@ -24,6 +24,6 @@
         "window-s": 0
     },
     "switch-control": {
-        "pin": 6
+        "pin": 1
     }
 }

@@ -62,6 +62,8 @@ SwitchControl::SwitchControl(Config *config,
 
 	pinMode(mPin, INPUT);
 
+	pullUpDnControl(mPin, PUD_UP);
+
 	LOG(INFO) << "Switch control pin: " << mPin << ", Mode: INPUT";
 
 	mPool = new ThreadPool(1, false);
@@ -73,11 +75,9 @@ SwitchControl::~SwitchControl() {
 
 bool SwitchControl::hasActivity() {
 	if (digitalRead(mPin) == LOW) {
-		// LOG(INFO) << "No motion detected.";
-		return false;
-	} else {
-		// LOG(INFO) << "Motion detected.";
 		return true;
+	} else {
+		return false;
 	}
 }
 
