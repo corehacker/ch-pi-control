@@ -82,6 +82,7 @@ private:
 	uint64_t motionDetectorWindowSeconds;
 
 	uint32_t switchControlPin;
+	uint32_t switchControlPollFrquencyMs;
 
 	bool populateConfigValues();
 public:
@@ -103,6 +104,7 @@ public:
 	uint64_t getMotionDetectorWindowSeconds();
 
 	uint32_t getSwitchControlPin();
+	uint32_t getSwitchControlPollFrquencyMs();
 };
 
 } // End namespace PC.

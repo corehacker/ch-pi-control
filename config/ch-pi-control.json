@@ -24,6 +24,7 @@
         "window-s": 0
     },
     "switch-control": {
-        "pin": 1
+        "pin": 1,
+        "poll-frquency-ms": 100
     }
 }

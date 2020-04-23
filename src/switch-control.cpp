@@ -60,6 +60,8 @@ SwitchControl::SwitchControl(Config *config,
 
 	mPin = mConfig->getSwitchControlPin();
 
+	mPollFrquencyMs = mConfig->getSwitchControlPollFrquencyMs();
+
 	mSwitchState = OFF;
 
 	pinMode(mPin, INPUT);
@@ -100,7 +102,7 @@ void *SwitchControl::_routine(void *arg, struct event_base *base) {
 }
 	
 void *SwitchControl::routine() {
-	THREAD_SLEEP_1000MS;
+	THREAD_SLEEP(mPollFrquencyMs);
 
 	bool activity = hasActivity();
 

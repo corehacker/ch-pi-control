@@ -98,6 +98,9 @@ bool Config::populateConfigValues() {
 	switchControlPin = mJson["switch-control"]["pin"];
 	LOG(INFO) << "switch-control.pin : " << switchControlPin;
 
+	switchControlPollFrquencyMs = mJson["switch-control"]["poll-frquency-ms"];
+	LOG(INFO) << "switch-control.poll-frquency-ms : " << switchControlPollFrquencyMs;
+
 	LOG(INFO) << "----------------------->Config";
 	return true;
 }
@@ -136,6 +139,10 @@ uint64_t Config::getMotionDetectorWindowSeconds() {
 
 uint32_t Config::getSwitchControlPin() {
 	return switchControlPin;
+}
+
+uint32_t Config::getSwitchControlPollFrquencyMs() {
+	return switchControlPollFrquencyMs;
 }
 
 } // End namespace PC.

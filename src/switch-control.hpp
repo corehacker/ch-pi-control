@@ -75,6 +75,8 @@ private:
 
 	SwitchState mSwitchState;
 
+	uint32_t mPollFrquencyMs;
+
 	bool hasActivity();
 
 	void takeAction();
